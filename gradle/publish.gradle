@@ -18,6 +18,7 @@ jar {
 bintray {
   user = System.env.BINTRAY_USER
   key = System.env.BINTRAY_KEY
+  publications = ['maven']
   pkg {
     repo = 'releases'
     name = 'pubsub-commons'
