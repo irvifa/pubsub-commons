@@ -22,8 +22,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MultiTopicPublisherTest {
-  @Mock
-  PublisherFactory publisherFactoryMock;
+  @Mock PublisherFactory publisherFactoryMock;
 
   MultiTopicPublisher underTest;
 
@@ -68,5 +67,4 @@ public class MultiTopicPublisherTest {
     assertThat(pubsubMessage.getData()).isEqualTo(ByteString.copyFromUtf8("payload"));
     assertThat(pubsubMessage.getAttributesMap()).isEqualTo(ImmutableMap.of("meta", "data"));
   }
-
 }

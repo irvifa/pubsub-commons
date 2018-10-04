@@ -4,9 +4,7 @@ import com.google.api.gax.core.ExecutorProvider;
 import com.google.api.gax.core.FixedExecutorProvider;
 import java.util.concurrent.ScheduledExecutorService;
 
-/**
- * One executor shared for all publisher.
- */
+/** One executor shared for all publisher. */
 public class SharedExecutor implements ExecutorProviderKind {
   private final ExecutorProvider executorProvider;
   private final ScheduledExecutorService executor;
