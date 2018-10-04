@@ -31,8 +31,7 @@ public class PublisherFactoryImplTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(PublisherFactoryImplTest.class);
 
   PublisherFactoryImpl underTest;
-  @Mock
-  TopicAdminClient topicAdminClientMock;
+  @Mock TopicAdminClient topicAdminClientMock;
 
   @Before
   public void setUp() throws Exception {
@@ -43,17 +42,19 @@ public class PublisherFactoryImplTest {
   public void testCreatePublisherAndTopicIfNeeded_retryIfUnanthenticated() throws IOException {
     final AtomicLong attempt = new AtomicLong(0);
     when(topicAdminClientMock.createTopic(any(ProjectTopicName.class)))
-        .thenAnswer(new Answer<Topic>() {
-          @Override
-          public Topic answer(InvocationOnMock invocation) throws Throwable {
-            if (attempt.get() == 0) {
-              attempt.incrementAndGet();
-              throw new ApiException(null, GrpcStatusCode.of(Status.Code.UNAUTHENTICATED), false);
-            } else {
-              return null;
-            }
-          }
-        });
+        .thenAnswer(
+            new Answer<Topic>() {
+              @Override
+              public Topic answer(InvocationOnMock invocation) throws Throwable {
+                if (attempt.get() == 0) {
+                  attempt.incrementAndGet();
+                  throw new ApiException(
+                      null, GrpcStatusCode.of(Status.Code.UNAUTHENTICATED), false);
+                } else {
+                  return null;
+                }
+              }
+            });
 
     underTest.createPublisher("topicA");
     verify(topicAdminClientMock, times(2))
@@ -64,17 +65,18 @@ public class PublisherFactoryImplTest {
   public void testCreatePublisherAndTopicIfNeeded_retryIfInternal() throws IOException {
     final AtomicLong attempt = new AtomicLong(0);
     when(topicAdminClientMock.createTopic(any(ProjectTopicName.class)))
-        .thenAnswer(new Answer<Topic>() {
-          @Override
-          public Topic answer(InvocationOnMock invocation) throws Throwable {
-            if (attempt.get() == 0) {
-              attempt.incrementAndGet();
-              throw new ApiException(null, GrpcStatusCode.of(Status.Code.INTERNAL), false);
-            } else {
-              return null;
-            }
-          }
-        });
+        .thenAnswer(
+            new Answer<Topic>() {
+              @Override
+              public Topic answer(InvocationOnMock invocation) throws Throwable {
+                if (attempt.get() == 0) {
+                  attempt.incrementAndGet();
+                  throw new ApiException(null, GrpcStatusCode.of(Status.Code.INTERNAL), false);
+                } else {
+                  return null;
+                }
+              }
+            });
 
     underTest.createPublisher("topicA");
     verify(topicAdminClientMock, times(2))
@@ -82,14 +84,16 @@ public class PublisherFactoryImplTest {
   }
 
   @Test
-  public void testCreatePublisherAndTopicIfNeeded_retriesExhausted_throwException() throws IOException {
+  public void testCreatePublisherAndTopicIfNeeded_retriesExhausted_throwException()
+      throws IOException {
     when(topicAdminClientMock.createTopic(any(ProjectTopicName.class)))
-        .thenAnswer(new Answer<Topic>() {
-          @Override
-          public Topic answer(InvocationOnMock invocation) throws Throwable {
-            throw new ApiException(null, GrpcStatusCode.of(Status.Code.INTERNAL), false);
-          }
-        });
+        .thenAnswer(
+            new Answer<Topic>() {
+              @Override
+              public Topic answer(InvocationOnMock invocation) throws Throwable {
+                throw new ApiException(null, GrpcStatusCode.of(Status.Code.INTERNAL), false);
+              }
+            });
 
     try {
       underTest.createPublisher("topicA");
@@ -99,8 +103,8 @@ public class PublisherFactoryImplTest {
 
       verify(topicAdminClientMock, times(PublisherFactoryImpl.NUM_RETRIES_ATTEMPT))
           .createTopic(ProjectTopicName.of("test-project", "topicA"));
-      assertThat(((ApiException) e.getCause()).getStatusCode().getCode()).
-          isEqualTo(StatusCode.Code.INTERNAL);
+      assertThat(((ApiException) e.getCause()).getStatusCode().getCode())
+          .isEqualTo(StatusCode.Code.INTERNAL);
     }
   }
 }

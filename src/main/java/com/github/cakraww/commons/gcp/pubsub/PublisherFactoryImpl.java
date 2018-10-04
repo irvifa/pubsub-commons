@@ -1,8 +1,8 @@
 package com.github.cakraww.commons.gcp.pubsub;
 
+import com.github.cakraww.commons.gcp.pubsub.core.ExecutorProviderKind;
 import com.github.cakraww.commons.gcp.pubsub.core.PerPublisherExecutor;
 import com.github.cakraww.commons.gcp.pubsub.core.SharedExecutor;
-import com.github.cakraww.commons.gcp.pubsub.core.ExecutorProviderKind;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
@@ -17,7 +17,6 @@ import com.google.cloud.pubsub.v1.TopicAdminSettings;
 import com.google.common.base.Preconditions;
 import com.google.common.io.BaseEncoding;
 import com.google.pubsub.v1.ProjectTopicName;
-import com.google.pubsub.v1.Topic;
 import com.segment.backo.Backo;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,19 +29,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Duration;
 
-/**
- * Create publisher with the same config. Auto create topic if not exists.
- */
+/** Create publisher with the same config. Auto create topic if not exists. */
 public class PublisherFactoryImpl implements PublisherFactory {
   static final int NUM_RETRIES_ATTEMPT = 8;
   private static final Logger LOGGER = LoggerFactory.getLogger(PublisherFactoryImpl.class);
   // 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 3000, 3000, ...
-  private static final Backo BACKO = Backo.builder()
-      .base(TimeUnit.MILLISECONDS, 10)
-      .cap(TimeUnit.SECONDS, 3)
-      .jitter(0)
-      .factor(2)
-      .build();
+  private static final Backo BACKO =
+      Backo.builder()
+          .base(TimeUnit.MILLISECONDS, 10)
+          .cap(TimeUnit.SECONDS, 3)
+          .jitter(0)
+          .factor(2)
+          .build();
 
   private static final Duration MIN_TOTAL_TIMEOUT = Duration.ofSeconds(10);
   private static final Duration DEFAULT_TOTAL_TIMEOUT = MIN_TOTAL_TIMEOUT;
@@ -60,18 +58,21 @@ public class PublisherFactoryImpl implements PublisherFactory {
           .build();
   // 50, 100, 200, 400, 800, 1600|, 3200, 5000, 5000, ...
   // 50, 150, 350, 750, 1550, 3150, 6350, 11350
-  private static final RetrySettings retrySettings = DEFAULT_RETRY_SETTINGS.toBuilder()
-      .setInitialRetryDelay(Duration.ofMillis(50))
-      .setRetryDelayMultiplier(2)
-      .setMaxRetryDelay(Duration.ofSeconds(5))
-      .setMaxAttempts(5)
-      .build();
+  private static final RetrySettings retrySettings =
+      DEFAULT_RETRY_SETTINGS
+          .toBuilder()
+          .setInitialRetryDelay(Duration.ofMillis(50))
+          .setRetryDelayMultiplier(2)
+          .setMaxRetryDelay(Duration.ofSeconds(5))
+          .setMaxAttempts(5)
+          .build();
 
-  private static final BatchingSettings batchingSettings = BatchingSettings.newBuilder()
-      .setDelayThreshold(Duration.ofMillis(50))
-      .setRequestByteThreshold(500_000L)
-      .setElementCountThreshold(5000L)
-      .build();
+  private static final BatchingSettings batchingSettings =
+      BatchingSettings.newBuilder()
+          .setDelayThreshold(Duration.ofMillis(50))
+          .setRequestByteThreshold(500_000L)
+          .setElementCountThreshold(5000L)
+          .build();
 
   private final String projectId;
   private final TopicAdminClient topicAdminClient;
@@ -95,8 +96,9 @@ public class PublisherFactoryImpl implements PublisherFactory {
       byte[] decoded = BaseEncoding.base64().decode(builder.privateKeyBase64);
 
       ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(decoded);
-      this.credentialsProvider = FixedCredentialsProvider.create(
-          ServiceAccountCredentials.fromStream(byteArrayInputStream));
+      this.credentialsProvider =
+          FixedCredentialsProvider.create(
+              ServiceAccountCredentials.fromStream(byteArrayInputStream));
     }
 
     TopicAdminSettings.Builder topicAdminBuilder = TopicAdminSettings.newBuilder();
@@ -125,11 +127,17 @@ public class PublisherFactoryImpl implements PublisherFactory {
 
         } else if (isUnauthenticatedException(e) || isInternalException(e)) {
           if (attempt + 1 == NUM_RETRIES_ATTEMPT) { // after last attempt, throw exception
-            LOGGER.error("Retries exhausted after {} when creating topic {}", NUM_RETRIES_ATTEMPT,
+            LOGGER.error(
+                "Retries exhausted after {} when creating topic {}",
+                NUM_RETRIES_ATTEMPT,
                 topicName);
             throw new IllegalStateException(
-                "Failed to create topic '" + topicNameStr + "' after " + NUM_RETRIES_ATTEMPT +
-                    " attempts", e);
+                "Failed to create topic '"
+                    + topicNameStr
+                    + "' after "
+                    + NUM_RETRIES_ATTEMPT
+                    + " attempts",
+                e);
           }
 
           try {
@@ -145,7 +153,6 @@ public class PublisherFactoryImpl implements PublisherFactory {
         }
       }
     }
-
   }
 
   private boolean isApiExceptionOfType(ApiException e, StatusCode.Code type) {
@@ -173,10 +180,11 @@ public class PublisherFactoryImpl implements PublisherFactory {
     ProjectTopicName topicName = ProjectTopicName.of(this.projectId, topic);
     createTopicIfNotExist(topic);
 
-    Publisher.Builder builder = Publisher.newBuilder(topicName)
-        .setExecutorProvider(executorProviderKind.getExecutorProvider())
-        .setRetrySettings(retrySettings)
-        .setBatchingSettings(batchingSettings);
+    Publisher.Builder builder =
+        Publisher.newBuilder(topicName)
+            .setExecutorProvider(executorProviderKind.getExecutorProvider())
+            .setRetrySettings(retrySettings)
+            .setBatchingSettings(batchingSettings);
     if (this.credentialsProvider != null) {
       builder.setCredentialsProvider(this.credentialsProvider);
     }
@@ -245,6 +253,4 @@ public class PublisherFactoryImpl implements PublisherFactory {
       return new PublisherFactoryImpl(this);
     }
   }
-
 }
-
