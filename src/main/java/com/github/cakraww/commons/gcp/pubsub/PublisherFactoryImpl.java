@@ -1,5 +1,9 @@
 package com.github.cakraww.commons.gcp.pubsub;
 
+import static com.github.cakraww.commons.gcp.pubsub.Helper.isAlreadyExistsException;
+import static com.github.cakraww.commons.gcp.pubsub.Helper.isInternalException;
+import static com.github.cakraww.commons.gcp.pubsub.Helper.isUnauthenticatedException;
+
 import com.github.cakraww.commons.gcp.pubsub.core.ExecutorProviderKind;
 import com.github.cakraww.commons.gcp.pubsub.core.PerPublisherExecutor;
 import com.github.cakraww.commons.gcp.pubsub.core.SharedExecutor;
@@ -153,26 +157,6 @@ public class PublisherFactoryImpl implements PublisherFactory {
         }
       }
     }
-  }
-
-  private boolean isApiExceptionOfType(ApiException e, StatusCode.Code type) {
-    if (e.getStatusCode() instanceof GrpcStatusCode) {
-      GrpcStatusCode statusCode = (GrpcStatusCode) e.getStatusCode();
-      return statusCode.getCode() == type;
-    }
-    return false;
-  }
-
-  private boolean isUnauthenticatedException(ApiException e) {
-    return isApiExceptionOfType(e, StatusCode.Code.UNAUTHENTICATED);
-  }
-
-  private boolean isAlreadyExistsException(ApiException e) {
-    return isApiExceptionOfType(e, StatusCode.Code.ALREADY_EXISTS);
-  }
-
-  private boolean isInternalException(ApiException e) {
-    return isApiExceptionOfType(e, StatusCode.Code.INTERNAL);
   }
 
   @Override
