@@ -90,8 +90,8 @@ public class SubscriberFactoryImpl implements SubscriberFactory {
                 projectTopicName);
             throw new IllegalStateException(
                 "Failed to create subscription with consumer id '" + consumerId
-                    + "' for topic id '" + topicName + " after " + NUM_OF_RETRIES_ATTEMPT +
-                    " attempts", e);
+                    + "' for topic id '" + topicName + " after " + NUM_OF_RETRIES_ATTEMPT
+                    + " attempts", e);
           }
 
           try {

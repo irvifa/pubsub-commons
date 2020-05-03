@@ -48,9 +48,13 @@ public class MultiTopicPublisher {
     }
   }
 
+
   public ApiFuture<String> publish(String topic, String payload, Map<String, String> metadata) {
+
     if (metadata == null) {
+      // CHECKSTYLE.OFF: ParameterAssignment
       metadata = ImmutableMap.of();
+      // CHECKSTYLE.ON: ParameterAssignment
     }
 
     Publisher publisher = publisherLoadingCache.getUnchecked(topic);

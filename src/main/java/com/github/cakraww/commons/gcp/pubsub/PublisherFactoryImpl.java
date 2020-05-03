@@ -10,10 +10,8 @@ import com.github.cakraww.commons.gcp.pubsub.core.SharedExecutor;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
-import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.ApiException;
-import com.google.api.gax.rpc.StatusCode;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.cloud.pubsub.v1.TopicAdminClient;
@@ -218,7 +216,9 @@ public class PublisherFactoryImpl implements PublisherFactory {
     }
 
     public Builder setPrivateKeyBase64(String privateKeyBase64) {
+      // CHECKSTYLE.OFF: RegexpSinglelineJava
       Preconditions.checkNotNull(projectId);
+      // CHECKSTYLE.ON: RegexpSinglelineJava
       this.privateKeyBase64 = privateKeyBase64;
       return this;
     }

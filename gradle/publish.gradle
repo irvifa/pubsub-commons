@@ -4,7 +4,7 @@ publishing {
   repositories {
     maven {
       name = "GitHubPackages"
-      url = uri("https://maven.pkg.github.com/irvifa/pubsub-commons")
+      url "${github_maven_url}"
       credentials {
         username = System.getenv("USERNAME")
         password = System.getenv("TOKEN")
@@ -21,8 +21,8 @@ publishing {
 jar {
   manifest {
     attributes(
-            "Implementation-Title": project.name,
-            "Implementation-Version": project.version
+      "Implementation-Title": project.name,
+      "Implementation-Version": project.version
     )
   }
 }
